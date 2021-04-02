@@ -362,6 +362,7 @@ class HypeDocumentLoader
 	 */
 	protected static function nameValue($name, $value)
 	{
+		// Max Ziebell tweak: return as JavaScript notation and only enclose numbers and -_ with quotations
 		if(preg_match( '/^([0-9-_])/', $name )){
 			return self::encode(strval($name)) . ':' . self::encode($value);
 		} else {
