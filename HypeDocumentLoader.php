@@ -2,8 +2,7 @@
 
 /**
 * Hype Document Loader for PHP v1.0.0
-* Modified to render and read JavaScript objects 
-* from generated script by Tumult Hype 4
+* Modified to render and read JavaScript objects from generated script by Tumult Hype 4
 *
 * @author	 Max Ziebell <mail@maxziebell.de>
 * based on CJSON and refactored/tweaked to Hype Document Loader (see below)
@@ -11,7 +10,6 @@
 */
 
 /*
-Hype Document Loader for PHP
 Version history:
 1.0.0 Initial release under existing CJSON license
 */
