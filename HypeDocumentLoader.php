@@ -115,7 +115,6 @@ class HypeDocumentLoader
 		$obj = (object) [];
 		if ($this->loader_param_array){
 			foreach($this->loader_param_array as $index => $val){
-				echo $this->loader_property_map[$index].', ';
 				$obj->{$this->loader_property_map[$index]} = $val;
 			}
 		}
