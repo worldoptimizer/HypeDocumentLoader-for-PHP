@@ -12,6 +12,7 @@
 /*
 Version history:
 1.0.0 Initial release under existing CJSON license
+1.0.1 fixes on indices and rendering return values
 */
 
 
@@ -114,8 +115,8 @@ class HypeDocumentLoader
 	public function get_loader_object(){
 		$obj = (object) [];
 		if ($this->loader_param_array){
-			foreach($this->loader_param_array as $index => $val){
-				$obj->{$this->loader_property_map[$index]} = $val;
+			foreach($this->loader_param_array as $index => &$val){
+				$obj->{$this->loader_property_map[$index]} = &$val;
 			}
 		}
 		return $obj;
