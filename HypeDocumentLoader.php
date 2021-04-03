@@ -123,10 +123,11 @@ class HypeDocumentLoader
 
 	// Max Ziebell tweak: call but don't encode top level strings
 	public static function encode_toplevel($arr){
+		$retarr = [];
 		foreach($arr as $key => $val){
-			$arr[$key] = self::encode($val, true);
+			$retarr[$key] = self::encode($val, true);
 		}
-		return join(',', $arr);
+		return join(',', $retarr);
 	}
 
 	// Max Ziebell tweak: call decode but treat toplevel different
@@ -362,7 +363,7 @@ class HypeDocumentLoader
 	protected static function nameValue($name, $value)
 	{
 		// Max Ziebell tweak: return as JavaScript notation and only enclose numbers and -_ with quotations
-		if(preg_match( '/^([0-9-_])/', $name )){
+		if(preg_match( '/^([0-9-_])/', $name ) || strpos($name, ' ') !== false){
 			return self::encode(strval($name)) . ':' . self::encode($value);
 		} else {
 			return strval($name) . ':' . self::encode($value);
