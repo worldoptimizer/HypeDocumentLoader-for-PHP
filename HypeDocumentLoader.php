@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Hype Document Loader for PHP v1.0.0
+* Hype Document Loader for PHP v1.0.2
 * Modified to render and read JavaScript objects from generated script by Tumult Hype 4
 *
 * @author	 Max Ziebell <mail@maxziebell.de>
@@ -13,6 +13,7 @@
 Version history:
 1.0.0 Initial release under existing CJSON license
 1.0.1 fixes on indices and rendering return values
+1.0.2 added loaded in constructor, add fetch_generated_script
 */
 
 
@@ -79,7 +80,18 @@ class HypeDocumentLoader
 
 
 	function __construct($hype_generated_script='') {
-		if ($hype_generated_script) $this->parse_generated_script($hype_generated_script);
+		if ($hype_generated_script) {
+			if (!$this->fetch_generated_script($hype_generated_script)){
+				$this->parse_generated_script($hype_generated_script);
+			}
+		}
+	}
+
+	public function fetch_generated_script($filepath){
+		if (substr($filepath, -3) === '.js' && is_file($filepath)){
+			return $this->parse_generated_script(file_get_contents($filepath));
+		}
+		return false;
 	}
 
 	public function parse_generated_script($hype_generated_script){
@@ -94,8 +106,10 @@ class HypeDocumentLoader
 				'loader_end_string'			=>	$matches[5],
 			];
 			$this->loader_param_array = self::decode_toplevel('['.$matches[4].']', false);
+			return true;
+		} else {
+			return false;
 		}
-		return $this->hype_generated_script_parts;
 	}
 
 	public function get_hype_generated_script(){
