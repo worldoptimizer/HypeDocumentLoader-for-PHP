@@ -1,11 +1,14 @@
 # HypeDocumentLoader for PHP
 
-Parse Hype generated script files using PHP.
+Parse Hype generated script files using PHP (*works with Tumult Hype 4.x*). To understand what the shorthand notation in Hype stands for please check:
+https://github.com/worldoptimizer/HypeCookBook/wiki/Hype-generated-Shorthands
 
-*Works with Tumult Hype 4.x*
 
 
-## Example
+
+## Examples
+
+Load the generated script from a string
 
 ```php
 require_once ("HypeDocumentLoader.php");
