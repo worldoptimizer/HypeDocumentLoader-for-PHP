@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Hype Document Loader for PHP v1.0.2
+* Hype Document Loader for PHP v1.0.3
 * Modified to render and read JavaScript objects from generated script by Tumult Hype 4
 *
 * @author	 Max Ziebell <mail@maxziebell.de>
@@ -14,6 +14,7 @@ Version history:
 1.0.0 Initial release under existing CJSON license
 1.0.1 fixes on indices and rendering return values
 1.0.2 added loaded in constructor, add fetch_generated_script
+1.0.3 Refactored to preg_split over match, additional nameValue rules
 */
 
 
@@ -95,21 +96,21 @@ class HypeDocumentLoader
 	}
 
 	public function parse_generated_script($hype_generated_script){
+
 		$this->hype_generated_script = $hype_generated_script;
-		preg_match('/(\/\/\s+(\S+)[\w\W]+new\s+window\[\"HYPE_(\d+)\"\+\w\]\()([\w\W]+)(\);\w\[\w\]=\w\.API;document[\w\W]+)/', $hype_generated_script, $matches);
-		if (isset($matches)){
-			$this->hype_generated_script_parts = (object) [
-				'variable' 					=>	$matches[2],
-				'build'						=>	$matches[3],
-				'loader_begin_string'		=>	$matches[1],
-				'loader_param_string'		=>	$matches[4],
-				'loader_end_string'			=>	$matches[5],
-			];
-			$this->loader_param_array = self::decode_toplevel('['.$matches[4].']', false);
-			return true;
-		} else {
-			return false;
-		}
+		$parts1 = preg_split('/(new\s+window\[\"HYPE_(\d+)\"\+\w\]\()/i', $hype_generated_script, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+		if (count($parts1)!=4) return false;
+		$parts2 = preg_split('/(\);\w\[\w\]=\w\.API;document[\w\W]+)/i', $parts1[3], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+		if (count($parts2)!=2) return false;
+
+		$this->hype_generated_script_parts = (object) [
+			'build'						=>	$parts1[2],
+			'loader_begin_string'		=>	$parts1[0].$parts1[1],
+			'loader_param_string'		=>	$parts2[0],
+			'loader_end_string'			=>	$parts2[1],
+		];
+		$this->loader_param_array = self::decode_toplevel('['.$parts2[0].']', false);
+		return true;
 	}
 
 	public function get_hype_generated_script(){
@@ -378,13 +379,17 @@ class HypeDocumentLoader
 	protected static function nameValue($name, $value)
 	{
 		// Max Ziebell tweak: return as JavaScript notation and only enclose numbers and -_ with quotations
-		if(preg_match( '/^([0-9-_])/', $name ) || strpos($name, ' ') !== false){
-			return self::encode(strval($name)) . ':' . self::encode($value);
+		if (is_string($value) && strpos($value, 'cl(') !== false) {
+			$val = $value;
 		} else {
-			return strval($name) . ':' . self::encode($value);
+			$val = self::encode($value);
 		}
-		
-		
+
+		if(preg_match( '/^([0-9-_])/', $name ) || strpos($name, ' ') !== false || strpos($name, '.') !== false){
+			return self::encode(strval($name)) . ':' . $val;
+		} else {
+			return strval($name) . ':' .  $val;
+		}
 	}
 
 	/**
