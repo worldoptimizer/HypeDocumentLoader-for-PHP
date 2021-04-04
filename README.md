@@ -42,7 +42,7 @@ This snippet does a quick compression on symbols (50%+ file size reduction)
 ```php
 
 require_once ("HypeDocumentLoader.php");
-$loader = new HypeDocumentLoader('XYZ.hyperesources/XYZ_hype_generated_script.js');
+$loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
 $data = $loader->get_loader_object();
 
 $sym = [];
@@ -85,7 +85,7 @@ This snippet deletes scenes (beaware that deleteing scenes with the first occura
 ```php
 
 require_once ("HypeDocumentLoader.php");
-$loader = new HypeDocumentLoader('XYZ.hyperesources/XYZ_hype_generated_script.js');
+$loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
 $data = $loader->get_loader_object();
 
 // $idx is the scene index to delete
