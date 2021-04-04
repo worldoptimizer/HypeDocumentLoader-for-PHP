@@ -13,7 +13,7 @@ Load the generated script from a string
 ```php
 require_once ("HypeDocumentLoader.php");
 
-$hype_generated_script = file_get_contents('test.hyperesources/test_hype_generated_script.js');
+$hype_generated_script = file_get_contents('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
 
 $loader = new HypeDocumentLoader($hype_generated_script);
 
