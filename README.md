@@ -126,6 +126,7 @@ This snippet does is an extended compression with an additional string lookup. T
 String lookup works as follows:
 * count all occurances of a string
 * push strings long and plenty enough into a lookup
+* sort the lookup by count to get smaller lookup ids on items referenced more often
 * apply the lookup to the data
 
 
