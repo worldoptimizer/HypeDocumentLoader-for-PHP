@@ -28,7 +28,7 @@ or using the file directly in the constructor (since v1.0.2)
 ```php
 require_once ("HypeDocumentLoader.php");
 
-$loader = new HypeDocumentLoader('test.hyperesources/test_hype_generated_script.js');
+$loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
 
 $data = $loader->get_loader_object();
 
