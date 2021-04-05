@@ -67,12 +67,12 @@ for ($i = 0; $i < count($data->scenes); $i++) {
 			$fid = count($sym)-1;
 		}
 		//reference	
-		$data->scenes[$i]->v->{$id} = 'cl('.$fid.$bF.')';
+		$data->scenes[$i]->v->{$id} = '$('.$fid.$bF.')';
 	}
 }
 
 $loader->inject_code_before_init('var sym='.$loader->encode($sym).';');
-$loader->inject_code_before_init('function cl(c,a){var b=JSON.parse(JSON.stringify(sym[c]));a&&(b.bF=a);return b}');
+$loader->inject_code_before_init('function $(c,a){var b=JSON.parse(JSON.stringify(sym[c]));a&&(b.bF=a);return b}');
 // echo compressed file
 echo $loader->get_hype_generated_script();
 
