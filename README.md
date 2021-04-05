@@ -88,20 +88,17 @@ require_once ("HypeDocumentLoader.php");
 $loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
 $data = $loader->get_loader_object();
 
-// $idx is the scene index to delete
+// $idx is the scene index to delete in this example 1 (scene 2)... 0 would be the first secene
 $idx = 1;
 
 // determin layouts to delete
 $layoutsToDelete = $data->sceneContainers[$idx]->X;
-print_r(array_keys($data->scenes));
 
 // unset layouts
 foreach ($layoutsToDelete as $j) unset($data->scenes[$j]);
-print_r(array_keys($data->scenes));
 
 // reindex layouts
 $data->scenes = array_values($data->scenes);
-print_r(array_keys($data->scenes));
 
 // reduce index of layouts higher by count of deleted
 for ($i = 0; $i < count($data->scenes); $i++) $data->scenes[$i]->_ = $i;
