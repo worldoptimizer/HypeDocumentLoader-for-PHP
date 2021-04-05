@@ -120,3 +120,109 @@ echo $loader->get_hype_generated_script();
 
 ```
 
+---
+
+Extend compression example with additional string lookup
+```php
+
+require_once ("HypeDocumentLoader.php");
+$loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
+$data = $loader->get_loader_object();
+
+$o = [];
+$o_count = [];
+$sym = [];
+$sym_encoded = [];
+
+
+$iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
+foreach($iterator as $key => $value) {
+	if (preg_match('/^[0-9"]+$/',$value)){
+		$iterator->getInnerIterator()->offsetSet($key, (int) $value);
+		continue;
+	}
+	if(is_string($value)&&strlen($value)>3) $o_count[$value] +=1;
+	if(is_string($key)&&strlen($key)>5) $o_count[$key] +=1;
+}
+
+arsort($o_count);
+
+$iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
+foreach($iterator as $key => $value) {
+	if(is_string($value)&&strlen($value)>3&&$o_count[$value]&&$o_count[$value]>1){
+		$fid = array_search($value, $o);
+		if(!$fid) $o[] = $value;
+	}
+	if(is_string($key)&&strlen($key)>5&&$o_count[$key]&&$o_count[$key]>1){
+		$fid = array_search($key, $o);
+		if(!$fid) $o[] = $key;
+	}
+}
+
+function sort_based_on_count($a, $b) {
+	global $o_count;
+	$aa = $o_count[$a];
+	$bb = $o_count[$b];
+	if ($aa == $bb) {
+		return (strlen($a) < strlen($b)) ? -1 : 1;
+	}
+	return ($aa > $bb) ? -1 : 1;
+}
+
+usort($o, "sort_based_on_count");
+
+$iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
+foreach($iterator as $key => $value) {
+	if(is_string($value)&&strlen($value)>3&&$o_count[$value]&&$o_count[$value]>1){
+		$fid = array_search($value, $o);
+		$iterator->getInnerIterator()->offsetSet($key, '_['.$fid.']');
+	}
+	if(is_string($key)&&strlen($key)>5&&$o_count[$key]&&$o_count[$key]>1){
+		$fid = array_search($key, $o);
+		$iterator->getInnerIterator()->offsetUnset($key);
+		$iterator->getInnerIterator()->offsetSet('[_['.$fid.']]', $value);
+	}
+}
+
+for ($i = 0; $i < count($data->scenes); $i++) {
+	// loop over objects (ids)
+	for ($j = 0; $j < count($data->scenes[$i]->O); $j++) {
+		$id = $data->scenes[$i]->O[$j];
+		$assign = (object)[];
+		$bF = $data->scenes[$i]->v->{$id}->bF;
+		if ($bF) $assign->bF = $bF;
+		$cV = $data->scenes[$i]->v->{$id}->cV;
+		if ($cV) $assign->cV = $cV;
+		if (count((array)$assign)){
+			if (count((array)$assign)==1 && isset($assign->bF)){
+				$assign = $assign->bF;
+			} else {
+				$assign = $loader->encode($assign);
+			}	
+			$assign = ','.$assign;	
+		} else {
+			$assign = '';
+		}
+		unset($data->scenes[$i]->v->{$id}->bF);
+		unset($data->scenes[$i]->v->{$id}->cV);
+		$sort = new ArrayObject($data->scenes[$i]->v->{$id});
+		$sort->ksort();
+		$encoded = $loader->encode($data->scenes[$i]->v->{$id});
+		$fid = array_search($encoded, $sym_encoded);
+		if(!$fid) {
+			//new and create
+			$sym[] = $data->scenes[$i]->v->{$id};
+			$sym_encoded[] = $encoded;
+			$fid = count($sym)-1;
+		}
+		$data->scenes[$i]->v->{$id} = '$('.$fid.$assign.')';
+	}
+}
+
+$loader->inject_code_before_init('var _='.$loader->encode($o).';');
+$loader->inject_code_before_init('var sym='.$loader->encode($sym).';');
+$loader->inject_code_before_init('function $(c,a){var b=JSON.parse(JSON.stringify(sym[c]));if(a&&!(a instanceof Object))a={bF:a};Object.assign(b,a);return b}');
+
+echo $loader->get_hype_generated_script();
+
+```
