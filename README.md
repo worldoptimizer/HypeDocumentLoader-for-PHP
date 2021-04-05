@@ -57,22 +57,22 @@ for ($i = 0; $i < count($data->scenes); $i++) {
 		$bF = $data->scenes[$i]->v->{$id}->bF;
 		if ($bF) $bF = ','.$bF;
 		unset($data->scenes[$i]->v->{$id}->bF);
-		$encoded = $loader->encode($data->scenes[$i]->v->{$id}, true);
+		$encoded = $loader->encode($data->scenes[$i]->v->{$id});
 		//check if present in lookup
 		$fid = array_search($encoded, $sym_encoded);
 		if(!$fid) {
 			//new and create
-			$sym[$id] = $data->scenes[$i]->v->{$id};
-			$sym_encoded[$id] = $encoded;
-			$fid = $id;
+			$sym[] = $data->scenes[$i]->v->{$id};
+			$sym_encoded[] = $encoded;
+			$fid = count($sym)-1;
 		}
 		//reference	
 		$data->scenes[$i]->v->{$id} = 'cl('.$fid.$bF.')';
 	}
 }
 
-$lookup = 'window.sym = '.$loader->encode($sym, true).';';
-$lookup .= 'function cl(c,a){var b=JSON.parse(JSON.stringify(sym[c]));a&&(b.bF=a);return b}';
+$loader->inject_code_before_init('var sym='.$loader->encode($sym).';');
+$loader->inject_code_before_init('function cl(c,a){var b=JSON.parse(JSON.stringify(sym[c]));a&&(b.bF=a);return b}');
 // echo compressed file
 echo $lookup."\n".$loader->get_hype_generated_script();
 
