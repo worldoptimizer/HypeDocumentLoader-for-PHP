@@ -107,11 +107,11 @@ class HypeDocumentLoader
 		if (count($parts2)!=2) return false;
 
 		$this->hype_generated_script_parts = (object) [
-			'build'						=>	$parts1[2],
+			'build'				=>	$parts1[2],
 			'loader_begin_string'		=>	$parts1[0],
 			'loader_delim_string'		=>	$parts1[1],
 			'loader_param_string'		=>	$parts2[0],
-			'loader_end_string'			=>	$parts2[1],
+			'loader_end_string'		=>	$parts2[1],
 		];
 		$this->loader_param_array = self::decode_toplevel('['.$parts2[0].']', false);
 		return true;
