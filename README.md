@@ -189,7 +189,7 @@ foreach($iterator as $key => $value) {
 	}
 }
 
-// below here is nearly the same code as in the simpler compression above. Only contains some minor tweaks.
+// below here is nearly the same code as in the simple symbol compression above. Only contains some minor tweaks.
 for ($i = 0; $i < count($data->scenes); $i++) {
 	for ($j = 0; $j < count($data->scenes[$i]->O); $j++) {
 		$id = $data->scenes[$i]->O[$j];
