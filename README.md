@@ -154,11 +154,11 @@ foreach($iterator as $key => $value) {
 
 $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
 foreach($iterator as $key => $value) {
-	if(is_string($value)&&strlen($value)>3&&$o_count[$value]&&$o_count[$value]>1){
+	if(is_string($value) && strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
 		$fid = array_search($value, $o);
 		if(!$fid) $o[] = $value;
 	}
-	if(is_string($key)&&strlen($key)>5&&$o_count[$key]&&$o_count[$key]>1){
+	if(is_string($key) && strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
 		$fid = array_search($key, $o);
 		if(!$fid) $o[] = $key;
 	}
@@ -178,11 +178,11 @@ usort($o, "sort_based_on_count");
 
 $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
 foreach($iterator as $key => $value) {
-	if(is_string($value)&&strlen($value)>3&&$o_count[$value]&&$o_count[$value]>1){
+	if(is_string($value) && strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
 		$fid = array_search($value, $o);
 		$iterator->getInnerIterator()->offsetSet($key, '_['.$fid.']');
 	}
-	if(is_string($key)&&strlen($key)>5&&$o_count[$key]&&$o_count[$key]>1){
+	if(is_string($key) && strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
 		$fid = array_search($key, $o);
 		$iterator->getInnerIterator()->offsetUnset($key);
 		$iterator->getInnerIterator()->offsetSet('[_['.$fid.']]', $value);
