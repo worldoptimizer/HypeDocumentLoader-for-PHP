@@ -121,7 +121,14 @@ echo $loader->get_hype_generated_script();
 ```
 
 ---
-This snippet does is an extended compression with an additional string lookup. The gained yield of around 10% requires many more steps than the much simpler snippet above and probably isn't necessary for most as the simpler version is much easier to maintain. But I am still posting it here as we currently use the code below:
+This snippet does is an extended compression with an additional string lookup. The gained yield of around 10% requires many more steps than the much simpler snippet above and probably isn't necessary for most as the simpler version is much easier to maintain. But I am still posting it here as we currently use the concepts found in the code below.
+
+String lookup works as follows:
+* count all occurances of a string
+* push strings long and plenty enough into a lookup
+* apply the lookup to the data
+
+
 ```php
 
 require_once ("HypeDocumentLoader.php");
