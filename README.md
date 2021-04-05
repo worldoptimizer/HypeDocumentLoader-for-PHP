@@ -74,7 +74,7 @@ for ($i = 0; $i < count($data->scenes); $i++) {
 $loader->inject_code_before_init('var sym='.$loader->encode($sym).';');
 $loader->inject_code_before_init('function cl(c,a){var b=JSON.parse(JSON.stringify(sym[c]));a&&(b.bF=a);return b}');
 // echo compressed file
-echo $lookup."\n".$loader->get_hype_generated_script();
+echo $loader->get_hype_generated_script();
 
 ```
 
