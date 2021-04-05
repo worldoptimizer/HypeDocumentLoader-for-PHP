@@ -189,8 +189,8 @@ foreach($iterator as $key => $value) {
 	}
 }
 
+// below here is nearly the same code as in the simpler compression above. Only contains some minor tweaks.
 for ($i = 0; $i < count($data->scenes); $i++) {
-	// loop over objects (ids)
 	for ($j = 0; $j < count($data->scenes[$i]->O); $j++) {
 		$id = $data->scenes[$i]->O[$j];
 		$assign = (object)[];
@@ -215,7 +215,6 @@ for ($i = 0; $i < count($data->scenes); $i++) {
 		$encoded = $loader->encode($data->scenes[$i]->v->{$id});
 		$fid = array_search($encoded, $sym_encoded);
 		if(!$fid) {
-			//new and create
 			$sym[] = $data->scenes[$i]->v->{$id};
 			$sym_encoded[] = $encoded;
 			$fid = count($sym)-1;
