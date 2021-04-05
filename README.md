@@ -80,7 +80,7 @@ echo $loader->get_hype_generated_script();
 
 ---
 
-This snippet deletes scenes (beaware that deleteing scenes with the first occurance of a persistent symbol deletes it from the entire document!)
+This snippet deletes scenes and all associated layouts given an scene index (be aware that deleteing scenes with the first occurance of a persistent symbol deletes it from the entire document!)
 
 ```php
 
