@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Hype Document Loader for PHP v1.0.3
+* Hype Document Loader for PHP v1.0.4
 * Modified to render and read JavaScript objects from generated script by Tumult Hype 4
 *
 * @author	 Max Ziebell <mail@maxziebell.de>
@@ -15,6 +15,8 @@ Version history:
 1.0.1 fixes on indices and rendering return values
 1.0.2 added loaded in constructor, add fetch_generated_script
 1.0.3 Refactored to preg_split over match, additional nameValue rules
+1.0.4 added injection option, added inject_code_before_init
+
 */
 
 
@@ -55,6 +57,7 @@ class HypeDocumentLoader
 	private $hype_generated_script;
 	private $hype_generated_script_parts=[];
 	private $loader_param_array=[];
+	private $code_parts_to_inject=[];
 
 	private $loader_property_map = [
 		/*  0 */	'documentName',
@@ -98,14 +101,15 @@ class HypeDocumentLoader
 	public function parse_generated_script($hype_generated_script){
 
 		$this->hype_generated_script = $hype_generated_script;
-		$parts1 = preg_split('/(new\s+window\[\"HYPE_(\d+)\"\+\w\]\()/i', $hype_generated_script, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+		$parts1 = preg_split('/(\w=new\s+window\[\"HYPE_(\d+)\"\+\w\]\()/i', $hype_generated_script, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 		if (count($parts1)!=4) return false;
 		$parts2 = preg_split('/(\);\w\[\w\]=\w\.API;document[\w\W]+)/i', $parts1[3], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 		if (count($parts2)!=2) return false;
 
 		$this->hype_generated_script_parts = (object) [
 			'build'						=>	$parts1[2],
-			'loader_begin_string'		=>	$parts1[0].$parts1[1],
+			'loader_begin_string'		=>	$parts1[0],
+			'loader_delim_string'		=>	$parts1[1],
 			'loader_param_string'		=>	$parts2[0],
 			'loader_end_string'			=>	$parts2[1],
 		];
@@ -117,6 +121,8 @@ class HypeDocumentLoader
 		$generated = '';
 		if (isset($this->hype_generated_script_parts)) {
 			$generated .= $this->hype_generated_script_parts->loader_begin_string;
+			if (count($this->code_parts_to_inject)) $generated .= implode('', $this->code_parts_to_inject);
+			$generated .= $this->hype_generated_script_parts->loader_delim_string;
 			$generated .= self::encode_toplevel($this->loader_param_array);
 			$generated .= $this->hype_generated_script_parts->loader_end_string;
 		}
@@ -125,6 +131,10 @@ class HypeDocumentLoader
 
 	public function get_hype_generated_script_parts(){
 		if (isset($this->hype_generated_script_parts)) return $this->hype_generated_script_parts;
+	}
+
+	public function inject_code_before_init($part){
+		$this->code_parts_to_inject[] = $part;
 	}
 
 	public function get_loader_object(){
@@ -379,13 +389,15 @@ class HypeDocumentLoader
 	protected static function nameValue($name, $value)
 	{
 		// Max Ziebell tweak: return as JavaScript notation and only enclose numbers and -_ with quotations
-		if (is_string($value) && strpos($value, 'cl(') !== false) {
+		//if (is_string($value) && (strpos($value, '$(') !== 0 || strpos($value, '_[') !== false)) {
+		if (is_string($value) && (preg_match( '/^\$\(.+\)$/', $value )  || preg_match( '/^_\[.+\]$/', $value ) )) {
 			$val = $value;
 		} else {
 			$val = self::encode($value);
 		}
 
-		if(preg_match( '/^([0-9-_])/', $name ) || strpos($name, ' ') !== false || strpos($name, '.') !== false){
+		// set name into quotes if it starts with a number contains spaces or dots
+		if(preg_match( '/^[0-9-_]/', $name ) || strpos($name, ' ') !== false || strpos($name, '.') !== false){
 			return self::encode(strval($name)) . ':' . $val;
 		} else {
 			return strval($name) . ':' .  $val;
