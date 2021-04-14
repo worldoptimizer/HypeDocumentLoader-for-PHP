@@ -60,7 +60,7 @@ for ($i = 0; $i < count($data->scenes); $i++) {
 		$encoded = $loader->encode($data->scenes[$i]->v->{$id});
 		//check if present in lookup
 		$fid = array_search($encoded, $sym_encoded);
-		if(!$fid) {
+		if($fid===false) {
 			//new and create
 			$sym[] = $data->scenes[$i]->v->{$id};
 			$sym_encoded[] = $encoded;
@@ -156,11 +156,11 @@ foreach($iterator as $key => $value) {
 	if (preg_match('/^[0-9"]+$/',$value)) continue;
 	if (strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
 		$fid = array_search($value, $o);
-		if(!$fid) $o[] = $value;
+		if($fid===false) $o[] = $value;
 	}
 	if (strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
 		$fid = array_search($key, $o);
-		if(!$fid) $o[] = $key;
+		if($fid===false) $o[] = $key;
 	}
 }
 
@@ -216,7 +216,7 @@ for ($i = 0; $i < count($data->scenes); $i++) {
 		$sort->ksort();
 		$encoded = $loader->encode($data->scenes[$i]->v->{$id});
 		$fid = array_search($encoded, $sym_encoded);
-		if(!$fid) {
+		if($fid===false) {
 			$sym[] = $data->scenes[$i]->v->{$id};
 			$sym_encoded[] = $encoded;
 			$fid = count($sym)-1;
