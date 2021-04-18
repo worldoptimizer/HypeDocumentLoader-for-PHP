@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Hype Document Loader for PHP v1.0.4
+* Hype Document Loader for PHP v1.0.5
 * Modified to render and read JavaScript objects from generated script by Tumult Hype 4
 *
 * @author	 Max Ziebell <mail@maxziebell.de>
@@ -15,8 +15,8 @@ Version history:
 1.0.1 fixes on indices and rendering return values
 1.0.2 added loaded in constructor, add fetch_generated_script
 1.0.3 Refactored to preg_split over match, additional nameValue rules
-1.0.4 added injection option, added inject_code_before_init
-
+1.0.4 added injection option, added insert_into_document_loader
+1.0.5 added get_document_name and insert_into_generated_script
 */
 
 
@@ -55,9 +55,11 @@ class HypeDocumentLoader
 {
 
 	private $hype_generated_script;
-	private $hype_generated_script_parts=[];
+	public $document_name;
+	public $hype_generated_script_parts=[];
 	private $loader_param_array=[];
-	private $code_parts_to_inject=[];
+	private $code_parts_for_document_loader=[];
+	private $code_parts_for_generated_script=[];
 
 	private $loader_property_map = [
 		/*  0 */	'documentName',
@@ -107,36 +109,60 @@ class HypeDocumentLoader
 		if (count($parts2)!=2) return false;
 
 		$this->hype_generated_script_parts = (object) [
-			'build'				=>	$parts1[2],
+			'build'						=>	$parts1[2],
 			'loader_begin_string'		=>	$parts1[0],
 			'loader_delim_string'		=>	$parts1[1],
 			'loader_param_string'		=>	$parts2[0],
-			'loader_end_string'		=>	$parts2[1],
+			'loader_end_string'			=>	$parts2[1],
 		];
 		$this->loader_param_array = self::decode_toplevel('['.$parts2[0].']', false);
+
+		//get document name
+		preg_match ('#\/\/\sHYPE\.documents\[\"([A-Za-z0-9-_]+)\"\]#', $this->hype_generated_script_parts->loader_begin_string, $match);
+		if (count($match)==2) $this->document_name = $match[1];
+		
+		// alternative if the document name is missing as comment
+		if (empty($this->document_name)) {
+			preg_match ('#\.hyperesources\"\,\w="(.+)",#', $this->hype_generated_script_parts->loader_begin_string, $match);
+			if (count($match)==2) $this->document_name = $match[1];
+		}
+		
 		return true;
 	}
 
 	public function get_hype_generated_script(){
 		$generated = '';
 		if (isset($this->hype_generated_script_parts)) {
+			if (count($this->code_parts_for_generated_script)) $generated .= implode('', $this->code_parts_for_generated_script)."\n";
 			$generated .= $this->hype_generated_script_parts->loader_begin_string;
-			if (count($this->code_parts_to_inject)) $generated .= implode('', $this->code_parts_to_inject);
+			if (count($this->code_parts_for_document_loader)) $generated .= implode('', $this->code_parts_for_document_loader);
 			$generated .= $this->hype_generated_script_parts->loader_delim_string;
 			$generated .= self::encode_toplevel($this->loader_param_array);
 			$generated .= $this->hype_generated_script_parts->loader_end_string;
 		}
 		return $generated;
 	}
-
-	public function get_hype_generated_script_parts(){
-		if (isset($this->hype_generated_script_parts)) return $this->hype_generated_script_parts;
+	
+	public function get_document_name(){
+		$loader_begin_string = $this->hype_generated_script_parts->loader_begin_string;
+		preg_match ('\/\/\sHYPE\.documents\[\"([A-Za-z0-9-_]+)\"\]',$match);
+		if (count($match)) return $match['0'];
 	}
 
-	public function inject_code_before_init($part){
-		$this->code_parts_to_inject[] = $part;
+	public function insert_into_document_loader($part){
+		$this->code_parts_for_document_loader[] = $part;
 	}
 
+	public function insert_into_generated_script($part){
+		$this->code_parts_for_generated_script[] = $part;
+	}
+
+	/**
+	 * This function maps the extracted data from the runtime init (signature array)
+	 * back to human readable wording for convience. 
+	 *
+	 * @return {object} The data from the runtime init as object with descriptive keys
+	 */
 	public function get_loader_object(){
 		$obj = (object) [];
 		if ($this->loader_param_array){
