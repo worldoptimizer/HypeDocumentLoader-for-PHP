@@ -232,3 +232,48 @@ $loader->inject_code_before_init('function $(c,a){var b=JSON.parse(JSON.stringif
 echo $loader->get_hype_generated_script();
 
 ```
+
+---
+
+Extract all custom behavior with meta data grouped by scene names
+
+```
+
+require_once ("HypeDocumentLoader.php");
+$loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
+$data = $loader->get_loader_object();
+
+$custom_behavior_lookup = [];
+// loop over scenes
+for ($i = 0; $i < count($data->sceneContainers); $i++) {
+	$sceneContainer = $data->sceneContainers[$i];
+	for ($j = 0; $j < count($sceneContainer->X); $j++) {
+		$sceneIndex = $sceneContainer->X[$j];
+		$scene = $data->scenes[$sceneIndex];
+		for ($k = 0; $k < count($scene->T->kTimelineDefaultIdentifier->a); $k++) {
+			$action = $scene->T->kTimelineDefaultIdentifier->a[$k];
+			for ($l = 0; $l < count($action->s->a); $l++) {
+				if ($action->s->a[$l]->p == 14) {
+					$sec = floor($action->y);
+					$frm = floor(($action->y-$sec)*100);
+					$t = floor(($sec+$frm/30)*1000)/1000;
+					if (!is_array($custom_behavior_lookup[$sceneContainer->n])) $custom_behavior_lookup[$sceneContainer->n] = [];
+					array_push($custom_behavior_lookup[$sceneContainer->n], (object)[
+						'customBehavior' => $action->s->a[$l]->B,
+						'sceneName' => $sceneContainer->n,
+						'layoutName' => $scene->n,
+						'time' => $t,
+						'breakpoint' =>  $scene->d,
+						'width' => $scene->Y,
+						'height' => $scene->Z,
+					]);
+				}
+			}
+		}
+	}
+}
+
+print_r($custom_behavior_lookup);
+```
+
+
