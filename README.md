@@ -237,7 +237,7 @@ echo $loader->get_hype_generated_script();
 
 Extract all custom behavior with meta data grouped by scene names
 
-```
+```php
 
 require_once ("HypeDocumentLoader.php");
 $loader = new HypeDocumentLoader('YOURFILE.hyperesources/YOURFILE_hype_generated_script.js');
