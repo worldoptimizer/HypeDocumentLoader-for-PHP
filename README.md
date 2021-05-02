@@ -127,7 +127,7 @@ echo $loader->get_hype_generated_script();
 
 ---
 
-### Extended compression example
+### String compression example
 
 This snippet does is an extended compression with an additional string lookup. The gained yield of around 10% requires many more steps than the much simpler snippet above and probably isn't necessary for most as the simpler version is much easier to maintain. But I am still posting it here as we currently use the concepts found in the code below.
 
@@ -152,23 +152,28 @@ $sym_encoded = [];
 
 $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
 foreach($iterator as $key => $value) {
-	if (!is_string($value)) continue;
-	if (preg_match('/^[0-9"]+$/',$value)) continue;
-	if(strlen($value)>3) $o_count[$value] +=1;
-	if(strlen($key)>5) $o_count[$key] +=1;
+	if (is_string($value) && !preg_match('/^[0-9"]+$/',$value)) {
+		if(strlen($value)>3) $o_count[$value] +=1;
+	}
+	if (is_string($key) && !preg_match('/^[0-9"]+$/',$key)) {
+		if(strlen($key)>5) $o_count[$key] +=1;
+	}
 }
 
 $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
 foreach($iterator as $key => $value) {
-	if (!is_string($value)) continue;
-	if (preg_match('/^[0-9"]+$/',$value)) continue;
-	if (strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
-		$fid = array_search($value, $o);
-		if($fid===false) $o[] = $value;
+	if (is_string($value) && !preg_match('/^[0-9"]+$/',$value)) {
+		if (strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
+			$fid = array_search($value, $o);
+			if($fid===false) $o[] = $value;
+		}
 	}
-	if (strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
-		$fid = array_search($key, $o);
-		if($fid===false) $o[] = $key;
+	
+	if (is_string($key) && !preg_match('/^[0-9"]+$/',$key)) {
+		if (strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
+			$fid = array_search($key, $o);
+			if($fid===false) $o[] = $key;
+		}
 	}
 }
 
@@ -186,16 +191,19 @@ usort($o, "sort_based_on_count");
 
 $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
 foreach($iterator as $key => $value) {
-	if (!is_string($value)) continue;
-	if (preg_match('/^[0-9"]+$/',$value)) continue;
-	if (strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
-		$fid = array_search($value, $o);
-		$iterator->getInnerIterator()->offsetSet($key, '_['.$fid.']');
+	if (is_string($value) && !preg_match('/^[0-9"]+$/',$value)) {
+		if (strlen($value)>3 && $o_count[$value] && $o_count[$value]>1){
+			$fid = array_search($value, $o);
+			$iterator->getInnerIterator()->offsetSet($key, '_['.$fid.']');
+		}
 	}
-	if (strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
-		$fid = array_search($key, $o);
-		$iterator->getInnerIterator()->offsetUnset($key);
-		$iterator->getInnerIterator()->offsetSet('[_['.$fid.']]', $value);
+	
+	if (is_string($key) && !preg_match('/^[0-9"]+$/',$key)) {
+		if (strlen($key)>5 && $o_count[$key] && $o_count[$key]>1){
+			$fid = array_search($key, $o);
+			$iterator->getInnerIterator()->offsetUnset($key);
+			$iterator->getInnerIterator()->offsetSet('[_['.$fid.']]', $value);
+		}
 	}
 }
 
