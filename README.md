@@ -8,6 +8,7 @@ https://github.com/worldoptimizer/HypeCookBook/wiki/Hype-generated-Shorthands
 
 ## Examples
 
+### Loading data
 Load the generated script from a string
 
 ```php
@@ -37,6 +38,8 @@ print_r($data);
 ```
 
 ---
+
+### Data compression example
 
 This snippet does a quick compression on symbols (50%+ file size reduction)
 ```php
@@ -80,6 +83,8 @@ echo $loader->get_hype_generated_script();
 
 ---
 
+### Delete scene example
+
 This snippet deletes scenes and all associated layouts given an scene index (be aware that deleteing scenes with the first occurance of a persistent symbol deletes it from the entire document!)
 
 ```php
@@ -121,6 +126,9 @@ echo $loader->get_hype_generated_script();
 ```
 
 ---
+
+### Extended compression example
+
 This snippet does is an extended compression with an additional string lookup. The gained yield of around 10% requires many more steps than the much simpler snippet above and probably isn't necessary for most as the simpler version is much easier to maintain. But I am still posting it here as we currently use the concepts found in the code below.
 
 String lookup works as follows:
@@ -234,6 +242,8 @@ echo $loader->get_hype_generated_script();
 ```
 
 ---
+
+### Custom behavior extraction example
 
 Extract all custom behavior with meta data grouped by scene names
 
