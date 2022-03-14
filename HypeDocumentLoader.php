@@ -17,6 +17,7 @@ Version history:
 1.0.3 Refactored to preg_split over match, additional nameValue rules
 1.0.4 added injection option, added insert_into_document_loader
 1.0.5 added get_document_name and insert_into_generated_script
+1.0.6 fixed newline introduced in 4.18 (738)
 */
 
 
@@ -115,6 +116,10 @@ class HypeDocumentLoader
 			'loader_param_string'		=>	$parts2[0],
 			'loader_end_string'			=>	$parts2[1],
 		];
+		
+		// Fix newline introduced in Hype 4.18 (738)
+		$parts2[0] = str_replace(array("\r", "\n"), '', $parts2[0]);
+		
 		$this->loader_param_array = self::decode_toplevel('['.$parts2[0].']', false);
 
 		//get document name
