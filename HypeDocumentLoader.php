@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Hype Document Loader for PHP v1.0.7
+* Hype Document Loader for PHP v1.0.8
 * Modified to render and read JavaScript objects from generated script by Tumult Hype 4
 *
 * @author	 Max Ziebell <mail@maxziebell.de>
@@ -19,6 +19,7 @@ Version history:
 1.0.5 added get_document_name and insert_into_generated_script
 1.0.6 fixed newline introduced in 4.18 (738)
 1.0.7 fixed PHP 7.3 notations
+1.0.8 Ensured that placeholders like _[123] and function calls like $('actionName')
 */
 
 
@@ -246,17 +247,18 @@ class HypeDocumentLoader
 				return str_replace(',','.',(float)$var); // locale-independent representation
 
 			case 'string':
-				//if (($enc=strtoupper(Yii::app()->charset))!=='UTF-8')
-				//	$var=iconv($enc, 'UTF-8', $var);
-
-				//if(function_exists('json_encode'))
-				//	return json_encode($var);
-
+				
+				// FIX 1.0.8: Ensure that placeholders (e.g., _[123]) and function calls (e.g., $('actionName')) are not quoted.
+    				// This prevents PHP and the encoder from adding unwanted quotes, maintaining their intended functionality in JavaScript.
+				if (preg_match('/^_\[\d+\]$/', $var) || preg_match('/^\$\(.+\)$/', $var)) {
+				    return $var;
+				}
+			
 				// STRINGS ARE EXPECTED TO BE IN ASCII OR UTF-8 FORMAT
 				$ascii = '';
 				$strlen_var = strlen($var);
 
-			   /*
+			   	/*
 				* Iterate over every character in the string,
 				* escaping with a slash or encoding to UTF-8 where necessary
 				*/
